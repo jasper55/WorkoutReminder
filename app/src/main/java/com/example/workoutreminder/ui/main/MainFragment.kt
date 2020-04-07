@@ -68,8 +68,8 @@ class MainFragment : Fragment() {
 //            openNotificationSettingsForApp()
 
             it.startAnimation(bounceAnimation)
-            val notificationBuilder = NotificationBuilder()
-            notificationBuilder.createNotification(requireContext().applicationContext)
+//            val notificationBuilder = NotificationBuilder()
+//            notificationBuilder.createNotification(requireContext().applicationContext)
             viewModel.schedulePeriodicWork(requireContext().applicationContext)
             viewModel.setNotificationsEnabled(true)
         }

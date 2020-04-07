@@ -12,6 +12,10 @@ import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat.CATEGORY_EVENT
 import android.graphics.BitmapFactory
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import android.os.Vibrator
+
+
 
 
 class NotificationBuilder {
@@ -47,8 +51,12 @@ class NotificationBuilder {
                 .build()
             channel.setSound(uri, audioAttributes)
 
+            // no effect
             val pattern =
-                longArrayOf(0, 300, 300, 300, 300, 300, 1000, 300, 200, 100, 500, 200, 100)
+//                longArrayOf(0,10, 2, 10, 2, 80, 2, 10, 2, 10, 2, 80, 2, 10, 2, 10, 2, 10, 2, 10)
+                longArrayOf(0,10, 2, 10, 2, 80)
+//            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+//            vibrator.vibrate(pattern,-1)
             channel.vibrationPattern = pattern
 
             notificationManager.createNotificationChannel(channel)

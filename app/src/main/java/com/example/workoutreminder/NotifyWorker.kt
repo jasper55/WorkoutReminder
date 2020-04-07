@@ -22,6 +22,9 @@ class NotifyWorker(@NonNull context: Context, @NonNull params: WorkerParameters)
     }
 
     private fun triggerNotification(context: Context) {
-        NotificationBuilder().createNotification(context)
+                    val notificationBuilder = NotificationBuilder()
+            notificationBuilder.createNotification(context)
+
+//        NotificationBuilder().createNotification(context)
     }
 }
