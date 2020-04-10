@@ -8,14 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
-import com.example.workoutreminder.NotificationBuilder
 import com.example.workoutreminder.R
 import kotlinx.android.synthetic.main.main_fragment.*
 import android.content.Intent
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.lifecycle.Observer
+import androidx.work.WorkManager
+import com.example.workoutreminder.ui.main.MainViewModel.Companion.periodicWorkTag
 import com.example.workoutreminder.ui.util.BounceInterpolator
+import androidx.work.WorkInfo
 
 
 class MainFragment : Fragment() {
@@ -42,8 +44,23 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        checkIfWorkRequestIsActive()
         initButtons()
         initBounceAnimator()
+
+    }
+
+    private fun checkIfWorkRequestIsActive() {
+        val info = WorkManager.getInstance(requireContext().applicationContext)
+            .getWorkInfosByTag(periodicWorkTag).get()
+
+        if (info == null || info.size == 0) {
+            viewModel.setNotificationsEnabled(false)
+        } else {
+            viewModel.setNotificationsEnabled(
+                (info[0].state == WorkInfo.State.RUNNING) or (info[0].state == WorkInfo.State.ENQUEUED)
+            )
+        }
     }
 
     private fun showActiveButton() {
@@ -66,10 +83,8 @@ class MainFragment : Fragment() {
         startButton.setOnClickListener {
             Toast.makeText(context, "Notification created", Toast.LENGTH_SHORT).show()
 //            openNotificationSettingsForApp()
-
             it.startAnimation(bounceAnimation)
-//            val notificationBuilder = NotificationBuilder()
-//            notificationBuilder.createNotification(requireContext().applicationContext)
+
             viewModel.schedulePeriodicWork(requireContext().applicationContext)
             viewModel.setNotificationsEnabled(true)
         }
@@ -84,11 +99,10 @@ class MainFragment : Fragment() {
         showActiveButton()
     }
 
-    private fun initBounceAnimator(): Animation {
+    private fun initBounceAnimator() {
         bounceAnimation = AnimationUtils.loadAnimation(requireActivity(), R.anim.bounce)
         val interpolator = BounceInterpolator(0.05, 10.0)
         bounceAnimation.interpolator = interpolator
-        return bounceAnimation
     }
 
 

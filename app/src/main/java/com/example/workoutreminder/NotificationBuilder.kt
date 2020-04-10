@@ -12,10 +12,6 @@ import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat.CATEGORY_EVENT
 import android.graphics.BitmapFactory
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import android.os.Vibrator
-
-
 
 
 class NotificationBuilder {
@@ -33,7 +29,14 @@ class NotificationBuilder {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //define the importance level of the notification
             val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
 
+            val customVibrationPattern =
+                longArrayOf(0,10, 2, 10, 2, 80, 2, 10, 2, 10, 2, 80, 2, 10, 2, 10, 2, 10, 2, 10)
+//                longArrayOf(0, 10, 2, 10, 2, 80)
             //build the actual notification channel, giving it a unique ID and name
             val channel = NotificationChannel(
                 workout_notification_channel_ID,
@@ -41,26 +44,12 @@ class NotificationBuilder {
                 importance
             )
 
-            //we can optionally set notification LED colour
-            channel.lightColor = Color.MAGENTA
-
-//            val uri2 = Settings.System.DEFAULT_NOTIFICATION_URI
-            val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            val audioAttributes = AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
-            channel.setSound(uri, audioAttributes)
-
-            // no effect
-            val pattern =
-//                longArrayOf(0,10, 2, 10, 2, 80, 2, 10, 2, 10, 2, 80, 2, 10, 2, 10, 2, 10, 2, 10)
-                longArrayOf(0,10, 2, 10, 2, 80)
-//            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-//            vibrator.vibrate(pattern,-1)
-            channel.vibrationPattern = pattern
-
-            notificationManager.createNotificationChannel(channel)
-
+            channel.apply {
+                lightColor = Color.MAGENTA
+                setSound(soundUri, audioAttributes)
+                vibrationPattern = customVibrationPattern
+                enableVibration(true)
+            }
 
             //build the notification
             val notificationBuilder = Notification.Builder(
@@ -82,8 +71,7 @@ class NotificationBuilder {
                     )
                 )
                 .setCategory(CATEGORY_EVENT)
-//                .setColor(0xFF4081)
-
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
 
                 .setColor(
                     ContextCompat.getColor(
@@ -92,6 +80,7 @@ class NotificationBuilder {
                     )
                 )
 
+            notificationManager.createNotificationChannel(channel)
             notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
         }
     }
